@@ -1,10 +1,10 @@
 --1. Liste des potions : Numéro, libellé, formule et constituant principal. (5 lignes)
-select p.num_potion , p.formule , p.constituant_principal , p.formule 
+select p.num_potion ,p.lib_potion , p.formule , p.constituant_principal , p.formule 
 from potion p ;
 --2. Liste des noms des trophées rapportant 3 points. (2 lignes)
 select c.nom_categ  from categorie c where c.nb_points = 3;
 --3. Liste des villages (noms) contenant plus de 35 huttes. (4 lignes)
-select v.nb_huttes from village v where v.nb_huttes > 35;
+select v.nom_village  from village v where v.nb_huttes > 35;
 --4. Liste des trophées (numéros) pris en mai / juin 52. (4 lignes)
 select t.num_trophee  from trophee t where t.date_prise between '20520505' and '20520606';
 --5. Noms des habitants commençant par 'a' et contenant la lettre 'r'. (3 lignes)
@@ -13,15 +13,16 @@ select h.nom  from habitant h where h.nom like 'A%r%';
 select distinct a.num_hab from absorber a where a.num_potion  = 1 or a.num_potion = 3 or num_potion =4;
 --7. Liste des trophées : numéro, date de prise, nom de la catégorie et nom du preneur. (10lignes)
 select t.num_trophee,t.date_prise ,c.nom_categ  , h.nom  from trophee t join habitant h on h.num_hab = t.num_preneur 
-												                        join categorie c on c.code_cat = t.code_cat ;
+join categorie c on c.code_cat = t.code_cat ;
 --8. Nom des habitants qui habitent à Aquilona. (7 lignes)
 select h.nom  from habitant h join village v on h.num_village = v.num_village  where  v.nom_village  ='Aquilona';
 --9. Nom des habitants ayant pris des trophées de catégorie Bouclier de Légat. (2 lignes)
 select h.nom from trophee t join habitant h  on h.num_hab  = t.num_preneur  
-							join categorie c on c.code_cat = t.code_cat where c.nom_categ ='Bouclier de Légat';
+							join categorie c on c.code_cat = t.code_cat 
+							where c.nom_categ ='Bouclier de Légat';
 --10. Liste des potions (libellés) fabriquées par Panoramix : libellé, formule et constituantprincipal. (3 lignes)
-p.lib_potion, p.formule , p.constituant_principal  from fabriquer f  join potion p   on p.num_potion  = f.num_potion 
-																			join habitant h on f.num_hab = h.num_hab  where h.nom = 'Panoramix';
+select p.lib_potion, p.formule , p.constituant_principal  from fabriquer f  join potion p   on p.num_potion  = f.num_potion join habitant h on f.num_hab = h.num_hab  where h.nom = 'Panoramix';
+
 --11. Liste des potions (libellés) absorbées par Homéopatix. (2 lignes)
 select distinct  p.lib_potion  from absorber a  join potion p on p.num_potion = a.num_potion 
 												join habitant h on a.num_hab  = h.num_hab  where h.nom = 'Homéopatix';
@@ -33,7 +34,8 @@ select distinct  h.nom
 from habitant h 
 join absorber a  on a.num_hab  =h.num_hab 								
 join fabriquer f   on a.num_potion  = f.num_potion 								
-join habitant h2 on f.num_hab = h2.num_hab;
+join habitant h2 on f.num_hab = h2.num_hab 
+and  h2.nom = 'Amnésix';
 --14. Nom des habitants dont la qualité n'est pas renseignée. (2 lignes)
 select  h.nom from habitant h where h.num_qualite is NULL;
 --15. Nom des habitants ayant consommé la Potion magique n°1 (c'est le libellé de lapotion) en février 52. (3 lignes)
@@ -56,7 +58,7 @@ select count(*) from habitant h where h.num_village =5;
 select sum (c.nb_points) from trophee t  join categorie c on c.code_cat = t.code_cat 
 										join habitant h on t.num_preneur = h.num_hab  where h.nom = 'Goudurix';
 --20. Date de première prise de trophée. (03/04/52)
-select to_char(min(t.date_prise), 'DD/MM/YY')  from trophee t 
+select to_char(min(t.date_prise), 'DD/MM/YY')  from trophee t; 
 --21. Nombre de louches de Potion magique n°2 (c'est le libellé de la potion) absorbées. (19)
 select sum(a.quantite) from potion p join absorber a on a.num_potion = p.num_potion where p.lib_potion = 'Potion magique n°2';
 
@@ -80,7 +82,7 @@ select p.nom_province,avg(h.age) from village v  join province p   on p.num_prov
 										group by p.nom_province; 
 
 --26. Nombre de potions différentes absorbées par chaque habitant (nom et nombre). (9lignes)
-select distinct h.nom,  sum(a.quantite)   from absorber a join habitant h on a.num_hab = h.num_hab 
+select distinct h.nom,  count(distinct num_potion)   from absorber a join habitant h on a.num_hab = h.num_hab 
 															group by h.nom;
 
 
